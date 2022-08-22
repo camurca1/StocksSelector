@@ -73,26 +73,27 @@ class CompanyReferenceFormBO(BaseBO):
         for file in csv_files:
             print(file)
             self.XML_TARGET_PATH = self.TARGET_PATH / 'xml_files' / file.replace('.csv', '')
-            self.create_destination_path(self.XML_TARGET_PATH)
-            self.RAW_FILE_NAME = file
+            if not self.check_if_resource_exists(self.XML_TARGET_PATH):
+                self.create_destination_path(self.XML_TARGET_PATH)
+                self.RAW_FILE_NAME = file
 
-            for year in range(self.INITIAL_YEAR, self.FINAL_YEAR):
-                self.FINAL_RAW_PATH = Path.joinpath(self.EXTRACT_PATH, self.RAW_FILE_NAME)
-                self.company_data = pd.read_csv(self.FINAL_RAW_PATH,
-                                                sep=';',
-                                                decimal=',',
-                                                encoding='ISO-8859-1')
-                self.company_data = self.company_data.sort_values('DT_RECEB').groupby('CD_CVM').tail(1)
+                for year in range(self.INITIAL_YEAR, self.FINAL_YEAR):
+                    self.FINAL_RAW_PATH = Path.joinpath(self.EXTRACT_PATH, self.RAW_FILE_NAME)
+                    self.company_data = pd.read_csv(self.FINAL_RAW_PATH,
+                                                    sep=';',
+                                                    decimal=',',
+                                                    encoding='ISO-8859-1')
+                    self.company_data = self.company_data.sort_values('DT_RECEB').groupby('CD_CVM').tail(1)
 
-            url_number = 0
-            for url in self.company_data['LINK_DOC'].to_list():
-                url_number += 1
+                url_number = 0
                 url_length = len(self.company_data['LINK_DOC'].to_list())
-                print(f'Reading URL {url_number} of {url_length}')
-                response = requests.post(url)
-                unzipped = ZipFile(BytesIO(response.content))
-                [unzipped.extract(fre, self.XML_TARGET_PATH) for fre in unzipped.namelist() if fre.endswith('.fre')]
-                unzipped.close()
+                for url in self.company_data['LINK_DOC'].to_list():
+                    url_number += 1
+                    print(f'Reading URL {url_number} of {url_length}')
+                    response = requests.post(url)
+                    unzipped = ZipFile(BytesIO(response.content))
+                    [unzipped.extract(fre, self.XML_TARGET_PATH) for fre in unzipped.namelist() if fre.endswith('.fre')]
+                    unzipped.close()
 
     def _transform_resource(self):
         pass
