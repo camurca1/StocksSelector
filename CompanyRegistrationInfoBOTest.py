@@ -7,7 +7,7 @@ class CompanyRegistrationDataTests(unittest.TestCase):
 
     def test_CompanyRegistrationInfoBO(self):
         company_info = CompanyRegistrationInfoBO()
-        self.assertTrue(Path(company_info.FINAL_PATH).exists())
+        self.assertTrue(Path(company_info.FINAL_CSV_PATH).exists())
 
 
 if __name__ == '__main__':
