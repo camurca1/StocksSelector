@@ -2,7 +2,7 @@
 # Criado por: Alexandre Camurça                                                                                        #
 # Data: 2022-08-18                                                                                                     #
 # Repositório: https://github.com/camurca1/StocksSelector                                                              #
-# Função: Arquivo de configuração                                                                                      #
+# Função: ETL dos relatórios financeiros                                                                                       #
 ########################################################################################################################
 from BaseBO import BaseBO
 from pathlib import Path
