@@ -11,9 +11,9 @@ class FREParser:
         self.FINAL_XML_PATH = ''
         self.company_data = None
         self.company_transformed_data = []
-        self.unpack_fre()
+        self.company_transformed_data = self._unpack_fre()
 
-    def unpack_fre(self):
+    def _unpack_fre(self):
         for child_dir in self.FRE_PATH.iterdir():
             fre_files = self.FRE_PATH / child_dir
             for file in fre_files.iterdir():
@@ -22,11 +22,22 @@ class FREParser:
                 self.company_data = _CompanyReferenceFormDTO()
                 self.company_data.CD_CVM = self._get_company_cvm_code(unpacked_fre)
                 self.company_data.REF_DATE = self._get_reference_date(unpacked_fre)
-                self.company_data.ACIONISTAS = self._get_stock_holders(unpacked_fre)
+                self.company_data.SHAREHOLDERS = self._get_stock_holders(unpacked_fre)
+                self.company_data.SHARECAPITAL = self._get_share_capital(unpacked_fre)
 
-                # print(self.company_data.ACIONISTAS)
-                break
-            break
+                if not self.company_data.SHARECAPITAL is None:
+                    if len(self.company_data.SHARECAPITAL):
+                        self.company_transformed_data.append(self.company_data)
+
+        df = self._stack_data()
+        return df
+
+    def _stack_data(self):
+        df = pd.DataFrame()
+        for company in self.company_transformed_data:
+            df = pd.concat([df, company.SHARECAPITAL])
+
+        return df
 
     @staticmethod
     def _get_company_cvm_code(unpacked_fre):
@@ -42,16 +53,17 @@ class FREParser:
                           namespaces={'FormularioReferencia': 'http://www.w3.org/2001/XMLSchema'})
         return fre['DataReferenciaDocumento'].to_list()[0]
 
-    @staticmethod
-    def _get_stock_holders(unpacked_fre):
-        stock_holders = unpacked_fre.open('ControleAcionario.xml')
-        stock_holders_xml_data = ET.parse(stock_holders)
-        stock_holders_xml_root = stock_holders_xml_data.getroot()
-        stock_holders_xml_str = ET.tostring(stock_holders_xml_root, encoding='utf-8', method='xml')
-        stock_holders_raw = xmltodict.parse(stock_holders_xml_str, process_namespaces=True).pop('ArrayOfControleAcionarioAcionista')
+    def _get_stock_holders(self, unpacked_fre):
+        xml = unpacked_fre.open('ControleAcionario.xml')
+        xml_data = ET.parse(xml)
+        xml_root = xml_data.getroot()
+        xml_str = ET.tostring(xml_root, encoding='utf-8', method='xml')
+        dict_raw = xmltodict.parse(xml_str, process_namespaces=True).pop('ArrayOfControleAcionarioAcionista')
 
         holders = pd.DataFrame(
-            columns=['NumeroIdentificacaoAcionista',
+            columns=['CD_CVM',
+                     'DT_REFER',
+                     'NumeroIdentificacaoAcionista',
                      'TipoRegistro',
                      'NumeroPessoa',
                      'IdentificacaoPessoa',
@@ -70,8 +82,10 @@ class FREParser:
                      'ParticipanteAcionista',
                      'AcionistaControlador'])
 
-        for stock_holder in stock_holders_raw['ControleAcionarioAcionista']:
-            new_row = [stock_holder['NumeroIdentificacaoAcionista'],
+        for stock_holder in dict_raw['ControleAcionarioAcionista']:
+            new_row = [self.company_data.CD_CVM,
+                       self.company_data.REF_DATE,
+                       stock_holder['NumeroIdentificacaoAcionista'],
                        stock_holder['TipoRegistro'],
                        stock_holder['Pessoa']['NumeroPessoa'],
                        stock_holder['Pessoa']['IdentificacaoPessoa'],
@@ -94,9 +108,62 @@ class FREParser:
 
         return holders
 
+    def _get_share_capital(self, unpacked_fre):
+        xml = unpacked_fre.open('CapitalSocial.xml')
+        xml_data = ET.parse(xml)
+        xml_root = xml_data.getroot()
+        xml_str = ET.tostring(xml_root, encoding='utf-8', method='xml')
+        dict_raw = xmltodict.parse(xml_str, process_namespaces=True).pop('ArrayOfCapitalSocial')
+
+        capital = pd.DataFrame(
+            columns=['CD_CVM',
+                     'DT_REFER',
+                     'CodigoTipoCapital',
+                     'DataAutorizacaoCapital',
+                     'ValorCapitalSocial',
+                     'PrazoIntegralizado',
+                     'QuantidadeAcoesOrdinarias',
+                     'QuantidadeAcoesPreferenciais',
+                     'QuantidadeTotalAcoes',
+                     'TitulosConversaoAcao'])
+
+        if not dict_raw is None:
+            for share_capital in dict_raw['CapitalSocial']:
+                try:
+                    if self._decode_share_capital_type(share_capital['CodigoTipoCapital']) == 'Capital Integralizado':
+                        new_row = [self.company_data.CD_CVM,
+                                   self.company_data.REF_DATE,
+                                   self._decode_share_capital_type(share_capital['CodigoTipoCapital']),
+                                   share_capital['DataAutorizacaoCapital'],
+                                   share_capital['ValorCapitalSocial'],
+                                   share_capital['PrazoIntegralizado'],
+                                   share_capital['QuantidadeAcoesOrdinarias'],
+                                   share_capital['QuantidadeAcoesPreferenciais'],
+                                   share_capital['QuantidadeTotalAcoes'],
+                                   share_capital['TitulosConversaoAcao']]
+
+                        capital.loc[len(capital)] = new_row
+
+                except Exception:
+                    pass
+
+            return capital
+
+    @staticmethod
+    def _decode_share_capital_type(code):
+        if code == '1':
+            return 'Capital Emitido'
+        if code == '2':
+            return 'Capital Subscrito'
+        if code == '3':
+            return 'Capital Integralizado'
+        if code == '4':
+            return 'Capital Autorizado'
+
 
 class _CompanyReferenceFormDTO:
     def __init__(self):
         self.CD_CVM = None
         self.REF_DATE = None
-        self.ACIONISTAS = None
+        self.SHAREHOLDERS = None
+        self.SHARECAPITAL = None

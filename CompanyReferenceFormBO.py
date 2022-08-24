@@ -12,6 +12,7 @@ import wget
 from zipfile import ZipFile
 import requests
 from io import BytesIO
+from FREParser import FREParser
 
 
 class CompanyReferenceFormBO(BaseBO):
@@ -36,7 +37,7 @@ class CompanyReferenceFormBO(BaseBO):
         self.__initializer()
 
     def __initializer(self):
-        if not self.check_if_resource_exists(self.FINAL_CSV_PATH):
+        if not self.check_if_resource_exists(self.TARGET_PATH):
             try:
                 self.create_destination_path(self.TARGET_PATH)
                 self.create_destination_path(self.XML_TARGET_PATH)
@@ -47,8 +48,8 @@ class CompanyReferenceFormBO(BaseBO):
             finally:
                 if self.check_download_url(self.ZIP_FILE_URL) < 400:
                     self._get_resource()
-                    # self._transform_resource()
-                    # self._save_resource()
+                    self._transform_resource()
+                    self._save_resource()
                 else:
                     self.company_transformed_data = pd.read_csv(self.FINAL_CSV_PATH)
 
@@ -71,7 +72,6 @@ class CompanyReferenceFormBO(BaseBO):
                 Path.unlink(self.FINAL_RAW_PATH)
 
         for file in csv_files:
-            print(file)
             self.XML_TARGET_PATH = self.TARGET_PATH / 'xml_files' / file.replace('.csv', '')
             if not self.check_if_resource_exists(self.XML_TARGET_PATH):
                 self.create_destination_path(self.XML_TARGET_PATH)
@@ -96,7 +96,10 @@ class CompanyReferenceFormBO(BaseBO):
                     unzipped.close()
 
     def _transform_resource(self):
-        pass
+        parsed_fre = FREParser()
+        self.company_transformed_data = parsed_fre.company_transformed_data
 
     def _save_resource(self):
-        pass
+        self.FINAL_CSV_PATH = self.FINAL_CSV_PATH / f'companies_fre_{self.INITIAL_YEAR}_{self.FINAL_YEAR}.csv'
+        if not self.check_if_resource_exists(self.FINAL_CSV_PATH):
+            self.company_transformed_data.to_csv(self.FINAL_CSV_PATH, index=False)
