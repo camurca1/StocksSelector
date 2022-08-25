@@ -2,12 +2,12 @@ import unittest
 from ISINDownloader import ISINDownloader
 
 
-class CompanyFinancialReportsTests(unittest.TestCase):
+class ISINDownloaderTests(unittest.TestCase):
 
     def test_CompanyReferenceFormBO(self):
         isin = ISINDownloader()
 
-        self.assertTrue(isin.DOWNLOAD_PATH.exists())
+        self.assertTrue(isin.FINAL_ISIN_FILE.exists())
 
 
 if __name__ == '__main__':
