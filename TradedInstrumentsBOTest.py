@@ -2,7 +2,7 @@ import unittest
 from TradedInstrumentsBO import TradedInstrumentsBO
 
 
-class TradedInstruments(unittest.TestCase):
+class TradedInstrumentsBOTests(unittest.TestCase):
 
     def test_CompanyReferenceFormBO(self):
         instruments = TradedInstrumentsBO()
