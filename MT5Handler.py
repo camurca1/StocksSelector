@@ -60,3 +60,7 @@ class Mt5Handler:
                 self.COLECTED_SYMBOLS.append(symbol)
             except:
                 pass
+
+    @staticmethod
+    def finish_mt5():
+        mt5.shutdown()

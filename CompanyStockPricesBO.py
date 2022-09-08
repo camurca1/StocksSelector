@@ -37,7 +37,7 @@ class CompanyStockPricesBO(BaseBO):
     def _get_resource(self):
         mt5_handler = Mt5Handler(symbols=self.company_data['TckrSymb'].to_list())
         mt5_handler.get_traded_stocks_daily_prices()
-        print(mt5_handler.COLECTED_SYMBOLS)
+        mt5_handler.finish_mt5()
 
     def _transform_resource(self):
         prices = pd.DataFrame()
