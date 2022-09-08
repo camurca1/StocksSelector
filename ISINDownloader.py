@@ -23,5 +23,5 @@ class ISINDownloader:
         driver.find_element_by_xpath('/html/body/app-root/app-isin-home/div/form/div/div/div[1]/div[2]/div[1]/div/div/a/h6').click()
         time.sleep(10)
         driver.find_element_by_xpath('/html/body/app-root/app-isin-home/div/form/div/div/div[1]/div[2]/div[2]/div/div[1]/div[1]/div[2]/p[1]/a').click()
-        time.sleep(5)
+        time.sleep(60)
         driver.quit()
