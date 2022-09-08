@@ -4,6 +4,7 @@
 # Repositório: https://github.com/camurca1/StocksSelector                                                              #
 # Função: ETL dos instrumentos negociados na B3                                                                        #
 ########################################################################################################################
+from B3DateValidator import B3DateValidator
 from BaseBO import BaseBO
 from pathlib import Path
 from datetime import datetime
@@ -15,7 +16,7 @@ from numpy import r_
 class TradedInstrumentsBO(BaseBO):
     def __init__(self):
         super(BaseBO, self).__init__()
-        self.DATE = datetime.today().strftime('%Y%m%d')
+        self.DATE = self._get_valid_trade_date(datetime.today().strftime('%Y%m%d'))
         self.TARGET_PATH = Path.cwd() / 'data' / 'traded_instruments'
         self.ISIN_ZIP_PATH = self.TARGET_PATH / 'isinp.zip'
         self.CONSOLIDATED_FILE_PATH = self.TARGET_PATH / 'InstrumentsConsolidated' / f'InstrumentsConsolidatedFile_{self.DATE}_1.csv'
@@ -36,6 +37,11 @@ class TradedInstrumentsBO(BaseBO):
             self._get_resource()
             self._transform_resource()
             self._save_resource()
+
+    @staticmethod
+    def _get_valid_trade_date(date):
+        market_day = B3DateValidator(date).valid_date.strftime('%Y%m%d')
+        return market_day
 
     def _get_resource(self):
         self.company_data = _IsinDTO()
