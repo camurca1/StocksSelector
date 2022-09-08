@@ -17,5 +17,5 @@ class InstrumentsFileDownloader:
         driver.get('https://arquivos.b3.com.br/Web/Consolidated')
         driver.implicitly_wait(6)
         driver.find_element_by_xpath('/html/body/div/div/div/div/div[2]/div[1]/div/div[1]/div/div/div/div[1]/div[2]/p[2]/a[1]').click()
-        time.sleep(12)
+        time.sleep(20)
         driver.quit()
