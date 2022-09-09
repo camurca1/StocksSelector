@@ -48,5 +48,4 @@ class StocksLiquidityBO(BaseBO):
         self.company_transformed_data.reset_index(drop=True, inplace=True)
 
     def _save_resource(self):
-        print(self.company_transformed_data)
         self.company_transformed_data.to_csv(self.FINAL_CSV_PATH, index=False)
