@@ -1,6 +1,6 @@
 ########################################################################################################################
 # Criado por: Alexandre Camurça                                                                                        #
-# Data: 2022-08-24                                                                                                     #
+# Data: 2022-09/08                                                                                                   #
 # Repositório: https://github.com/camurca1/StocksSelector                                                              #
 # Função: ETL dos preços diários das companhias monitoradas                                                            #
 ########################################################################################################################
@@ -40,8 +40,7 @@ class StocksLiquidityBO(BaseBO):
 
     def _transform_resource(self):
         self.company_transformed_data = self.company_data
-        self.company_transformed_data['average_traded_volume'] = self.company_transformed_data['close'] * \
-                                                                 self.company_transformed_data['real_volume']
+        self.company_transformed_data['average_traded_volume'] = self.company_transformed_data['close'] * self.company_transformed_data['real_volume']
         self.company_transformed_data = self.company_transformed_data.groupby(['TckrSymb'])['average_traded_volume'].mean()
         self.company_transformed_data = self.company_transformed_data.reset_index().rename(columns={'average_traded_volume': 'average_daily_traded_volume'})
         self.company_transformed_data = self.company_transformed_data[self.company_transformed_data.average_daily_traded_volume > 100000]
