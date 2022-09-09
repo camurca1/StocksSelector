@@ -13,4 +13,4 @@ class B3DateValidator:
         if date_index.size == 0:
             return pd.to_datetime(date) + pd.offsets.BusinessDay(-1)
         else:
-            return date
+            return pd.to_datetime(date)
