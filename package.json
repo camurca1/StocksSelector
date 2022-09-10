@@ -1,0 +1,25 @@
+{
+  "name": "stocksselector",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "next dev"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/camurca1/StocksSelector.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/camurca1/StocksSelector/issues"
+  },
+  "homepage": "https://github.com/camurca1/StocksSelector#readme",
+  "dependencies": {
+    "next": "^12.3.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  }
+}
