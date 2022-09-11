@@ -2,11 +2,11 @@ export async function getStaticPaths() {
     return {
         paths: [{
             params: {
-                stock: '1'
+                stock: 'ABCB4'
             }
         },{
             params: {
-                stock: '2'
+                stock: 'PETR4'
             }
         }],
         fallback: false
