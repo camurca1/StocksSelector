@@ -1,15 +1,11 @@
 import Link from 'next/link';
-import Head from 'next/head';
-import NumberFormat from 'react-number-format';
 
 
 export default function Home(props) {
     const posts = props.symbol;
 
     return <div>
-        <Head>
-            Stocks Selector
-        </Head>
+        <h1>Stocks Selector</h1>
         <p>Under Construction</p>
         <div>
             {posts.map(post =>
