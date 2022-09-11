@@ -1,8 +1,8 @@
 ########################################################################################################################
 # Criado por: Alexandre Camurça                                                                                        #
-# Data: 2022-09/08                                                                                                   #
+# Data: 2022-09-08                                                                                                     #
 # Repositório: https://github.com/camurca1/StocksSelector                                                              #
-# Função: ETL dos preços diários das companhias monitoradas                                                            #
+# Função: Calcular a liquidez anual dos ativos                                                                         #
 ########################################################################################################################
 from BaseBO import BaseBO
 from pathlib import Path
@@ -48,7 +48,8 @@ class StocksLiquidityBO(BaseBO):
         self.company_transformed_data = self.company_transformed_data.reset_index(drop=True).rename(columns={'average_traded_volume': 'average_year_traded_volume'})
         self.company_transformed_data = self.company_transformed_data[self.company_transformed_data.average_year_traded_volume > 1]
         self.company_transformed_data.reset_index(drop=True, inplace=True)
-        print(self.company_transformed_data)
+        self.company_transformed_data['year'] = self.company_transformed_data['year'].astype(str) + '-12-31'
+        self.company_transformed_data = self.company_transformed_data.rename(columns={'year': 'DT_REFER'})
 
     def _save_resource(self):
         self.company_transformed_data.to_csv(self.FINAL_CSV_PATH, index=False)
