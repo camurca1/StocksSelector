@@ -2,11 +2,11 @@ export async function getStaticPaths() {
     return {
         paths: [{
             params: {
-                id: '1'
+                stock: '1'
             }
         },{
             params: {
-                id: '2'
+                stock: '2'
             }
         }],
         fallback: false
@@ -14,18 +14,18 @@ export async function getStaticPaths() {
 }
 
 export async function getStaticProps(context) {
-    const id = context.params.id;
+    const id = context.params.stock;
 
     return {
         props: {
-            id: id
+            stock: id
         }
     }
 }
 
 function Produtos(props) {
     
-    return <div>Id do produto: {props.id}</div>
+    return <div>Stock: {props.stock}</div>
 }
 
 export default Produtos;
