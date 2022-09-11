@@ -17,6 +17,7 @@ class StocksLiquidityBO(BaseBO):
         self.ACTIVE_STOCKS_PRICES = Path.cwd() / 'data' / 'prices' / 'stocks_prices.csv'
         self.TARGET_PATH = Path.cwd() / 'data' / 'prices'
         self.FINAL_CSV_PATH = self.TARGET_PATH / 'liquid_stocks.csv'
+        self.FINAL_JSON_PATH = self.TARGET_PATH / 'liquid_stocks.json'
         self.company_data = pd.read_csv(self.ACTIVE_STOCKS_PRICES, parse_dates=True, index_col=['TckrSymb', 'DT_REFER'])
         self.company_transformed_data = None
 
@@ -48,3 +49,4 @@ class StocksLiquidityBO(BaseBO):
 
     def _save_resource(self):
         self.company_transformed_data.to_csv(self.FINAL_CSV_PATH, index=False)
+        self.company_transformed_data.to_json(self.FINAL_JSON_PATH, orient='records')
