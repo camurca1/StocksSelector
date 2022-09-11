@@ -41,11 +41,14 @@ class StocksLiquidityBO(BaseBO):
 
     def _transform_resource(self):
         self.company_transformed_data = self.company_data
+        self.company_transformed_data = self.company_transformed_data.reset_index()
+        self.company_transformed_data['year'] = self.company_transformed_data['DT_REFER'].dt.year
         self.company_transformed_data['average_traded_volume'] = self.company_transformed_data['close'] * self.company_transformed_data['real_volume']
-        self.company_transformed_data = self.company_transformed_data.groupby(['TckrSymb'])['average_traded_volume'].mean()
-        self.company_transformed_data = self.company_transformed_data.reset_index().rename(columns={'average_traded_volume': 'average_daily_traded_volume'})
-        self.company_transformed_data = self.company_transformed_data[self.company_transformed_data.average_daily_traded_volume > 100000]
+        self.company_transformed_data = self.company_transformed_data.groupby(['TckrSymb', 'year'], as_index=False)['average_traded_volume'].mean()
+        self.company_transformed_data = self.company_transformed_data.reset_index(drop=True).rename(columns={'average_traded_volume': 'average_year_traded_volume'})
+        self.company_transformed_data = self.company_transformed_data[self.company_transformed_data.average_year_traded_volume > 1]
         self.company_transformed_data.reset_index(drop=True, inplace=True)
+        print(self.company_transformed_data)
 
     def _save_resource(self):
         self.company_transformed_data.to_csv(self.FINAL_CSV_PATH, index=False)
