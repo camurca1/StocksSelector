@@ -12,8 +12,8 @@ export default function Home(props) {
                 <div key={post.TckrSymb} style={{ padding: 20, borderBottom: '1px solid #ccc' }}>
                     <h2>{post.TckrSymb}</h2>
                     <div>
-                        <p>Volume médio diário</p>
-                        {formatter(post.average_daily_traded_volume)}
+                        <p>Volume médio em {post.year}</p>
+                        {formatter(post.average_year_traded_volume)}
                     </div>
                 </div>)}
         </div>
