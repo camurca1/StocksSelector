@@ -5,7 +5,7 @@ from TotalCompanySharesBO import TotalCompanySharesBO
 class StocksLiquidityBOTest(unittest.TestCase):
     def test_TotalSharesCalc(self):
         total_shares = TotalCompanySharesBO()
-        # self.assertEqual(True, False)  # add assertion here
+        self.assertTrue(total_shares.FINAL_CSV_PATH.exists())
 
 
 if __name__ == '__main__':
