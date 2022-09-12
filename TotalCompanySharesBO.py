@@ -29,23 +29,16 @@ class TotalCompanySharesBO(BaseBO):
             pass  # insert log exception
         finally:
             self._get_resource()
-            # self._transform_resource()
-            # self._save_resource()
+            self._transform_resource()
+            self._save_resource()
 
     def _get_resource(self):
         print(self.company_data)
 
     def _transform_resource(self):
         self.company_transformed_data = self.company_data
-        self.company_transformed_data = self.company_transformed_data.reset_index()
-        self.company_transformed_data['year'] = self.company_transformed_data['DT_REFER'].dt.year
-        self.company_transformed_data['average_traded_volume'] = self.company_transformed_data['close'] * self.company_transformed_data['real_volume']
-        self.company_transformed_data = self.company_transformed_data.groupby(['TckrSymb', 'year'], as_index=False)['average_traded_volume'].mean()
-        self.company_transformed_data = self.company_transformed_data.reset_index(drop=True).rename(columns={'average_traded_volume': 'average_year_traded_volume'})
-        self.company_transformed_data = self.company_transformed_data[self.company_transformed_data.average_year_traded_volume > 1]
-        self.company_transformed_data.reset_index(drop=True, inplace=True)
-        self.company_transformed_data['year'] = self.company_transformed_data['year'].astype(str) + '-12-31'
-        self.company_transformed_data = self.company_transformed_data.rename(columns={'year': 'DT_REFER'})
+        self.company_transformed_data = self.company_transformed_data.groupby(['CD_CVM', 'DT_REFER'], as_index=False)['QuantidadeTotalAcoes'].sum()
+        self.company_transformed_data = self.company_transformed_data.reset_index(drop=True).rename(columns={'QuantidadeTotalAcoes': 'total_annual_shares'})
 
     def _save_resource(self):
         self.company_transformed_data.to_csv(self.FINAL_CSV_PATH, index=False)

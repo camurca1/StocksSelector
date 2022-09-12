@@ -37,7 +37,7 @@ class CompanyReferenceFormBO(BaseBO):
         self.__initializer()
 
     def __initializer(self):
-        if not self.check_if_resource_exists(self.TARGET_PATH):
+        if not self.check_if_resource_exists(self.FINAL_CSV_PATH):
             try:
                 self.create_destination_path(self.TARGET_PATH)
                 self.create_destination_path(self.XML_TARGET_PATH)
@@ -97,9 +97,9 @@ class CompanyReferenceFormBO(BaseBO):
 
     def _transform_resource(self):
         parsed_fre = FREParser()
+        print(parsed_fre.company_transformed_data)
         self.company_transformed_data = parsed_fre.company_transformed_data
 
     def _save_resource(self):
         self.FINAL_CSV_PATH = self.FINAL_CSV_PATH / f'companies_fre_{self.INITIAL_YEAR}_{self.FINAL_YEAR}.csv'
-        if not self.check_if_resource_exists(self.FINAL_CSV_PATH):
-            self.company_transformed_data.to_csv(self.FINAL_CSV_PATH, index=False)
+        self.company_transformed_data.to_csv(self.FINAL_CSV_PATH, index=False)
