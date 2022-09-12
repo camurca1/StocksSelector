@@ -11,12 +11,15 @@ class FREParser:
         self.FINAL_XML_PATH = ''
         self.company_data = None
         self.company_transformed_data = []
-        self.company_transformed_data = self._unpack_fre()
+        self._unpack_fre()
+        self.company_transformed_data = self._stack_data()
 
     def _unpack_fre(self):
         for child_dir in self.FRE_PATH.iterdir():
             fre_files = self.FRE_PATH / child_dir
+            print(fre_files)
             for file in fre_files.iterdir():
+                print(file)
                 self.FINAL_XML_PATH = fre_files / str(file).replace('.fre', '')
                 unpacked_fre = ZipFile(file, 'r')
                 self.company_data = _CompanyReferenceFormDTO()
@@ -28,9 +31,6 @@ class FREParser:
                 if not self.company_data.SHARECAPITAL is None:
                     if len(self.company_data.SHARECAPITAL):
                         self.company_transformed_data.append(self.company_data)
-
-        df = self._stack_data()
-        return df
 
     def _stack_data(self):
         df = pd.DataFrame()
