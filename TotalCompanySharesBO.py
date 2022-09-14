@@ -6,7 +6,6 @@
 ########################################################################################################################
 from BaseBO import BaseBO
 from pathlib import Path
-from datetime import datetime
 import pandas as pd
 
 
@@ -17,7 +16,7 @@ class TotalCompanySharesBO(BaseBO):
         self.TARGET_PATH = Path.cwd() / 'data' / 'reference_forms'
         self.FINAL_CSV_PATH = self.TARGET_PATH / 'total_shares.csv'
         self.FINAL_JSON_PATH = self.TARGET_PATH / 'total_shares.json'
-        self.company_data = pd.read_csv(self.COMPANIES_TOTAL_SHARES, parse_dates=True)
+        self.company_data = None
         self.company_transformed_data = None
 
         self.__initializer()
@@ -33,7 +32,7 @@ class TotalCompanySharesBO(BaseBO):
             self._save_resource()
 
     def _get_resource(self):
-        print(self.company_data)
+        self.company_data = pd.read_csv(self.COMPANIES_TOTAL_SHARES, parse_dates=True)
 
     def _transform_resource(self):
         self.company_transformed_data = self.company_data

@@ -37,7 +37,7 @@ class CompanyReferenceFormBO(BaseBO):
         self.__initializer()
 
     def __initializer(self):
-        if not self.check_if_resource_exists(self.FINAL_CSV_PATH):
+        # if not self.check_if_resource_exists(self.FINAL_CSV_PATH):
             try:
                 self.create_destination_path(self.TARGET_PATH)
                 self.create_destination_path(self.XML_TARGET_PATH)
@@ -47,7 +47,7 @@ class CompanyReferenceFormBO(BaseBO):
                 pass  # insert log exception
             finally:
                 if self.check_download_url(self.ZIP_FILE_URL) < 400:
-                    self._get_resource()
+                    # self._get_resource()
                     self._transform_resource()
                     self._save_resource()
                 else:
@@ -97,9 +97,21 @@ class CompanyReferenceFormBO(BaseBO):
 
     def _transform_resource(self):
         parsed_fre = FREParser()
-        print(parsed_fre.company_transformed_data)
-        self.company_transformed_data = parsed_fre.company_transformed_data
+        self.company_transformed_data = _CompanyReferenceFormDTO()
+        self.company_transformed_data.SHARECAPITAL = parsed_fre.company_transformed_data
+        self.company_transformed_data.DIVIDEND_DETAILS = parsed_fre.company_data.DIVIDEND_DETAILS
 
     def _save_resource(self):
-        self.FINAL_CSV_PATH = self.FINAL_CSV_PATH / f'companies_fre_{self.INITIAL_YEAR}_{self.FINAL_YEAR}.csv'
-        self.company_transformed_data.to_csv(self.FINAL_CSV_PATH, index=False)
+        path = self.FINAL_CSV_PATH / f'companies_fre_total_shares_{self.INITIAL_YEAR}_{self.FINAL_YEAR}.csv'
+        self.company_transformed_data.SHARECAPITAL.to_csv(path, index=False)
+
+        path = self.FINAL_CSV_PATH / f'companies_fre_dividends_details_{self.INITIAL_YEAR}_{self.FINAL_YEAR}.csv'
+        self.company_transformed_data.DIVIDEND_DETAILS.to_csv(path, index=False)
+
+
+class _CompanyReferenceFormDTO:
+    def __init__(self):
+        self.CD_CVM = None
+        self.REF_DATE = None
+        self.SHARECAPITAL = None
+        self.DIVIDEND_DETAILS = None
