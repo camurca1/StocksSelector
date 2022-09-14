@@ -27,6 +27,7 @@ class FREParser:
                 self.company_data.REF_DATE = self._get_reference_date(unpacked_fre)
                 self.company_data.SHAREHOLDERS = self._get_stock_holders(unpacked_fre)
                 self.company_data.SHARECAPITAL = self._get_share_capital(unpacked_fre)
+                self.company_data.DIVIDEND_DETAILS = self._get_dividend_details(unpacked_fre)
 
                 if not self.company_data.SHARECAPITAL is None:
                     if len(self.company_data.SHARECAPITAL):
@@ -110,22 +111,18 @@ class FREParser:
 
     def _get_share_capital(self, unpacked_fre):
         xml = unpacked_fre.open('CapitalSocial.xml')
-        xml_data = ET.parse(xml)
-        xml_root = xml_data.getroot()
-        xml_str = ET.tostring(xml_root, encoding='utf-8', method='xml')
-        dict_raw = xmltodict.parse(xml_str, process_namespaces=True).pop('ArrayOfCapitalSocial')
+        dict_raw = self._xml_to_dict(xml, 'ArrayOfCapitalSocial')
 
-        capital = pd.DataFrame(
-            columns=['CD_CVM',
-                     'DT_REFER',
-                     'CodigoTipoCapital',
-                     'DataAutorizacaoCapital',
-                     'ValorCapitalSocial',
-                     'PrazoIntegralizado',
-                     'QuantidadeAcoesOrdinarias',
-                     'QuantidadeAcoesPreferenciais',
-                     'QuantidadeTotalAcoes',
-                     'TitulosConversaoAcao'])
+        capital = self._create_dataframe(['CD_CVM',
+                                          'DT_REFER',
+                                          'CodigoTipoCapital',
+                                          'DataAutorizacaoCapital',
+                                          'ValorCapitalSocial',
+                                          'PrazoIntegralizado',
+                                          'QuantidadeAcoesOrdinarias',
+                                          'QuantidadeAcoesPreferenciais',
+                                          'QuantidadeTotalAcoes',
+                                          'TitulosConversaoAcao'])
 
         if not dict_raw is None:
             for share_capital in dict_raw['CapitalSocial']:
@@ -160,6 +157,55 @@ class FREParser:
         if code == '4':
             return 'Capital Autorizado'
 
+    def _get_dividend_details(self, unpacked_fre):
+        xml = unpacked_fre.open('InformacoesFinanceirasSelecionadas.xml')
+        dict_raw = self._xml_to_dict(xml, 'ArrayOfInfoFinSel')
+
+        dividend_details = self._create_dataframe(['CD_CVM',
+                                                   'DT_REFER',
+                                                   'DataInicioExercicioSocial',
+                                                   'DataFimExercicioSocial',
+                                                   'LucroLiquido',
+                                                   'DividendoDistribuido',
+                                                   'LucroLiquidoRetido',
+                                                   'TaxaRetorno',
+                                                   'PercentualDividendoDistribuido',
+                                                   'DataAprovacaoRetencao'])
+
+        if not dict_raw is None:
+            for dividend in dict_raw['InfoFinSel']:
+                try:
+                    new_row = [self.company_data.CD_CVM,
+                               self.company_data.REF_DATE,
+                               dividend['ExercicioSocial']['DataInicioExercicioSocial'],
+                               dividend['ExercicioSocial']['DataFimExercicioSocial'],
+                               dividend['LucroLiquido'],
+                               dividend['DividendoDistribuido'],
+                               dividend['LucroLiquidoRetido'],
+                               dividend['TaxaRetorno'],
+                               dividend['PercentualDividendoDistribuido'],
+                               dividend['DataAprovacaoRetencao']]
+
+                    dividend_details.loc[0] = new_row
+
+                except Exception:
+                    pass
+
+            return dividend_details
+
+    @staticmethod
+    def _xml_to_dict(xml, pop_level):
+        xml_data = ET.parse(xml)
+        xml_root = xml_data.getroot()
+        xml_str = ET.tostring(xml_root, encoding='utf-8', method='xml')
+        dict_raw = xmltodict.parse(xml_str, process_namespaces=True).pop(pop_level)
+
+        return dict_raw
+
+    @staticmethod
+    def _create_dataframe(columns):
+        return pd.DataFrame(columns=columns)
+
 
 class _CompanyReferenceFormDTO:
     def __init__(self):
@@ -167,3 +213,4 @@ class _CompanyReferenceFormDTO:
         self.REF_DATE = None
         self.SHAREHOLDERS = None
         self.SHARECAPITAL = None
+        self.DIVIDEND_DETAILS = None
