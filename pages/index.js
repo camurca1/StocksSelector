@@ -11,10 +11,11 @@ export default function Home(props) {
             {posts.map(post =>
                 <div key={post.TckrSymb} style={{ padding: 20, borderBottom: '1px solid #ccc' }}>
                     <h2>{post.TckrSymb}</h2>
-                    <div>
-                        <p>Volume médio em {post.DT_REFER}</p>
-                        {formatter(post.average_year_traded_volume)}
-                    </div>
+                    {post.Date.map(date =>
+                    <div key={date.DT_REFER}>
+                        <p>Volume médio em {date.DT_REFER}</p>
+                        {formatter(date.average_year_traded_volume)}
+                    </div>)}
                 </div>)}
         </div>
         <div>
