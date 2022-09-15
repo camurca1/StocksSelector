@@ -10,9 +10,10 @@ class FREParser:
         self.FRE_PATH = Path.cwd() / 'data' / 'reference_forms' / 'xml_files'
         self.FINAL_XML_PATH = ''
         self.company_data = None
-        self.company_transformed_data = []
+        self.company_transformed_data = _CompanyReferenceFormDTO()
+        self.company_transformed_data.SHARECAPITAL = pd.DataFrame()
+        self.company_transformed_data.DIVIDEND_DETAILS = pd.DataFrame()
         self._unpack_fre()
-        self.company_transformed_data = self._stack_data()
 
     def _unpack_fre(self):
         for child_dir in self.FRE_PATH.iterdir():
@@ -31,14 +32,13 @@ class FREParser:
 
                 if not self.company_data.SHARECAPITAL is None:
                     if len(self.company_data.SHARECAPITAL):
-                        self.company_transformed_data.append(self.company_data)
+                        self.company_transformed_data.SHARECAPITAL = pd.concat([self.company_transformed_data.SHARECAPITAL,
+                                                                                self.company_data.SHARECAPITAL])
 
-    def _stack_data(self):
-        df = pd.DataFrame()
-        for company in self.company_transformed_data:
-            df = pd.concat([df, company.SHARECAPITAL])
-
-        return df
+                if not self.company_data.DIVIDEND_DETAILS is None:
+                    if len(self.company_data.DIVIDEND_DETAILS):
+                        self.company_transformed_data.DIVIDEND_DETAILS = pd.concat([self.company_transformed_data.DIVIDEND_DETAILS,
+                                                                                    self.company_data.DIVIDEND_DETAILS])
 
     @staticmethod
     def _get_company_cvm_code(unpacked_fre):

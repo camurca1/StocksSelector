@@ -12,7 +12,7 @@ import wget
 from zipfile import ZipFile
 import requests
 from io import BytesIO
-from FREParser import FREParser
+from FREParser import FREParser, _CompanyReferenceFormDTO
 
 
 class CompanyReferenceFormBO(BaseBO):
@@ -98,8 +98,8 @@ class CompanyReferenceFormBO(BaseBO):
     def _transform_resource(self):
         parsed_fre = FREParser()
         self.company_transformed_data = _CompanyReferenceFormDTO()
-        self.company_transformed_data.SHARECAPITAL = parsed_fre.company_transformed_data
-        self.company_transformed_data.DIVIDEND_DETAILS = parsed_fre.company_data.DIVIDEND_DETAILS
+        self.company_transformed_data.SHARECAPITAL = parsed_fre.company_transformed_data.SHARECAPITAL
+        self.company_transformed_data.DIVIDEND_DETAILS = parsed_fre.company_transformed_data.DIVIDEND_DETAILS
 
     def _save_resource(self):
         path = self.FINAL_CSV_PATH / f'companies_fre_total_shares_{self.INITIAL_YEAR}_{self.FINAL_YEAR}.csv'
@@ -107,11 +107,3 @@ class CompanyReferenceFormBO(BaseBO):
 
         path = self.FINAL_CSV_PATH / f'companies_fre_dividends_details_{self.INITIAL_YEAR}_{self.FINAL_YEAR}.csv'
         self.company_transformed_data.DIVIDEND_DETAILS.to_csv(path, index=False)
-
-
-class _CompanyReferenceFormDTO:
-    def __init__(self):
-        self.CD_CVM = None
-        self.REF_DATE = None
-        self.SHARECAPITAL = None
-        self.DIVIDEND_DETAILS = None
