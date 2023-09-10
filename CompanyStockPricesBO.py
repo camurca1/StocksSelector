@@ -9,17 +9,20 @@ from pathlib import Path
 from datetime import datetime
 import pandas as pd
 from MT5Handler import Mt5Handler
+from DatabaseHandler import DatabaseHandler
 
 
 class CompanyStockPricesBO(BaseBO):
     def __init__(self):
         super(BaseBO, self).__init__()
         self.DATE = datetime.today().strftime('%Y%m%d')
-        self.ACTIVE_TRADED_COMPANIES = Path.cwd() / 'data' / 'traded_instruments' / 'active_traded_stocks.csv'
+        self.ACTIVE_TRADED_COMPANIES = Path.cwd() / 'data' / 'traded_instruments' / \
+            'active_traded_stocks.csv'
         self.TARGET_PATH = Path.cwd() / 'data' / 'prices'
         self.INDIVIDUAL_PRICES_PATH = self.TARGET_PATH / 'individual_prices'
         self.FINAL_CSV_PATH = self.TARGET_PATH / 'stocks_prices.csv'
-        self.company_data = pd.read_csv(self.ACTIVE_TRADED_COMPANIES)
+        self.company_data = pd.read_csv(
+            self.ACTIVE_TRADED_COMPANIES, encoding='Windows-1252')
         self.company_transformed_data = None
 
         self.__initializer()
@@ -32,10 +35,20 @@ class CompanyStockPricesBO(BaseBO):
         finally:
             self._get_resource()
             self._transform_resource()
+            self._connectDB()
             self._save_resource()
+            self._disconnectDB()
+
+    def _connectDB(self):
+        self.db = DatabaseHandler()
+        self.db.connect()
+
+    def _disconnectDB(self):
+        self.db.disconnect()
 
     def _get_resource(self):
-        mt5_handler = Mt5Handler(symbols=self.company_data['TckrSymb'].to_list())
+        mt5_handler = Mt5Handler(
+            symbols=self.company_data['TckrSymb'].to_list())
         mt5_handler.get_traded_stocks_daily_prices()
         mt5_handler.finish_mt5()
 
@@ -46,8 +59,7 @@ class CompanyStockPricesBO(BaseBO):
             price_path = self.INDIVIDUAL_PRICES_PATH / f'{symbol}_daily.csv'
             try:
                 price = pd.read_csv(price_path,
-                                    parse_dates=True,
-                                    infer_datetime_format=True)
+                                    parse_dates=True)
                 price['TckrSymb'] = symbol
                 prices = pd.concat([prices, price])
             except:
@@ -61,3 +73,5 @@ class CompanyStockPricesBO(BaseBO):
 
     def _save_resource(self):
         self.company_transformed_data.to_csv(self.FINAL_CSV_PATH)
+        self.company_transformed_data.reset_index(inplace=True)
+        self.db.write_stocks_prices(self.company_transformed_data)

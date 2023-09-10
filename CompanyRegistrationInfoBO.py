@@ -44,6 +44,8 @@ class CompanyRegistrationInfoBO(BaseBO):
         self.company_transformed_data = self.company_transformed_data.drop_duplicates()
         self.company_transformed_data['CD_CVM'] = self.company_transformed_data['CD_CVM'].astype(int)
         self.company_transformed_data['CNPJ_CIA'] = self.company_transformed_data['CNPJ_CIA'].astype(str).str.replace('\.|\/|\-', '', regex=True)
+        self.company_transformed_data['CNPJ_AUDITOR'] = self.company_transformed_data['CNPJ_AUDITOR'].astype(str).str.replace('\.|\/|\-', '', regex=True)
+        
         self.company_transformed_data.reset_index(drop=True, inplace=True)
 
     def _save_resource(self):

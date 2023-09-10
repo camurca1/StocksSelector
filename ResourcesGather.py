@@ -12,8 +12,8 @@ class ResourceGather:
         CompanyRegistrationInfoBO()
         CompanyFinancialReportsBO()
         CompanyReferenceFormBO()
-        InstrumentsFileDownloader()
-        ISINDownloader()
+        # InstrumentsFileDownloader()
+        # ISINDownloader()
         TradedInstrumentsBO()
         CompanyStockPricesBO()
 

@@ -16,8 +16,8 @@ class Mt5Handler:
         self.TRADED_SYMBOLS = kwargs.get('symbols', None)
         self.DOWNLOAD_PRICES_PATH = Path.cwd() / 'data' / 'prices' / 'individual_prices'
         self.COLECTED_SYMBOLS = []
-        self.print_status()
         self.__initializer()
+        self.print_status()
 
     def __initializer(self):
         try:
@@ -26,9 +26,10 @@ class Mt5Handler:
             pass  # insert log exception
 
     def start_mt5(self):
-        return mt5.initialize(login=self.CONFIG.get_user(),
-                              server=self.CONFIG.get_server(),
-                              password=self.CONFIG.get_pass())
+        return mt5.initialize()
+        # return mt5.initialize(login=self.CONFIG.get_user(),
+        #                       server=self.CONFIG.get_server(),
+        #                       password=self.CONFIG.get_pass())
 
     @staticmethod
     def get_account_info():
